@@ -14,9 +14,16 @@ class FourDImageView(QWidgetPlugin,QWidget):
     def __init__(self, header: NonDBHeader = None, field: str = 'primary', toolbar: QToolBar = None, *args, **kwargs):
         
         super(FourDImageView, self).__init__(*args, *kwargs)
-        self.DPimageview = pg.ImageView()#DynImageView()
-        self.RSimageview = pg.ImageView()#DynImageView()
-
+        self.DPimageview = pg.ImageView()
+        self.RSimageview = pg.ImageView()
+        
+        self.DPimageview.setPredefinedGradient('viridis')
+        self.RSimageview.setPredefinedGradient('viridis')
+        
+        #Using DynImageView rotates the data and the ROI does not work correctly.
+        #self.DPimageview = DynImageView()
+        #self.RSimageview = DynImageView()
+        
         self.setLayout(QHBoxLayout())
         self.layout().addWidget(self.DPimageview)
         self.layout().addWidget(self.RSimageview)
@@ -42,6 +49,7 @@ class FourDImageView(QWidgetPlugin,QWidget):
         
         self.DPlimit = QRectF(0,0,data.shape[2],data.shape[3])
         self.RSlimit = QRectF(0,0,data.shape[0],data.shape[1])
+
         self.DProi.maxBounds = self.DPlimit
         self.RSroi.maxBounds = self.RSlimit
         
@@ -53,14 +61,14 @@ class FourDImageView(QWidgetPlugin,QWidget):
         ROI location and size
         
         '''
-        self.RSimageview.setImage(np.log(np.sum(self.data[:, :,int(self.DProi.pos().x()):int(self.DProi.pos().x() + self.DProi.size().x()),int(self.DProi.pos().y()):int(self.DProi.pos().y() + self.DProi.size().y())], axis=(3, 2)) + 1))
+        self.RSimageview.setImage(np.log(np.sum(self.data[:, :,int(self.DProi.pos().x()):int(self.DProi.pos().x() + self.DProi.size().x()),int(self.DProi.pos().y()):int(self.DProi.pos().y() + self.DProi.size().y())], axis=(3, 2),dtype=np.float32) + 1))
     
     def updateDP(self):
         '''Update the real space image based on the diffraction space
         ROI location and size.
         
         '''
-        self.DPimageview.setImage(np.sum(self.data[int(self.RSroi.pos().x()):int(self.RSroi.pos().x() + self.RSroi.size().x()),int(self.RSroi.pos().y()):int(self.RSroi.pos().y() + self.RSroi.size().y()), :, :], axis=(1, 0)))
+        self.DPimageview.setImage(np.sum(self.data[int(self.RSroi.pos().x()):int(self.RSroi.pos().x() + self.RSroi.size().x()),int(self.RSroi.pos().y()):int(self.RSroi.pos().y() + self.RSroi.size().y()), :, :], axis=(1, 0),dtype=np.float32))
     
     def setHeader(self, header: NonDBHeader, field: str, *args, **kwargs):
         self.header = header
