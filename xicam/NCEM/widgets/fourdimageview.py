@@ -10,22 +10,29 @@ import pyqtgraph as pg
 import numpy as np
 from ncempy.io import dm
 from pathlib import Path
-#from xicam.gui.widgets.dynimageview import DynImageView
+from xicam.gui.widgets.dynimageview import DynImageView
 
 class FourDImageView(QWidgetPlugin,QWidget):
     def __init__(self, header: NonDBHeader = None, field: str = 'primary', toolbar: QToolBar = None, *args, **kwargs):
         
         super(FourDImageView, self).__init__(*args, *kwargs)
+        
+        '''
         self.DPimageview = pg.ImageView()
         self.RSimageview = pg.ImageView()
-        
         self.DPimageview.setPredefinedGradient('viridis')
         self.RSimageview.setPredefinedGradient('viridis')
+        '''
         
         #Using DynImageView rotates the data and the ROI does not work correctly.
-        #self.DPimageview = DynImageView()
-        #self.RSimageview = DynImageView()
-        
+        self.DPimageview = DynImageView()
+        self.RSimageview = DynImageView()
+        # Keep Y-axis as is
+        self.DPimageview.view.invertY(True)
+        self.RSimageview.view.invertY(True)
+        self.DPimageview.imageItem.setOpts(axisOrder='col-major')
+        self.RSimageview.imageItem.setOpts(axisOrder='col-major')
+                
         self.setLayout(QHBoxLayout())
         self.layout().addWidget(self.DPimageview)
         self.layout().addWidget(self.RSimageview)
