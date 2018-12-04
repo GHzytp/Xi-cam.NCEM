@@ -4,11 +4,13 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtCore import QRect, QRectF
 from xicam.core.data import NonDBHeader
+from xicam.core import msg
+
 import pyqtgraph as pg
 import numpy as np
 from ncempy.io import dm
 from pathlib import Path
-from xicam.gui.widgets.dynimageview import DynImageView
+#from xicam.gui.widgets.dynimageview import DynImageView
 
 class FourDImageView(QWidgetPlugin,QWidget):
     def __init__(self, header: NonDBHeader = None, field: str = 'primary', toolbar: QToolBar = None, *args, **kwargs):
@@ -89,6 +91,10 @@ class FourDImageView(QWidgetPlugin,QWidget):
         #Try to load the data
         dPath = Path(r'C:/Users/Peter.000/Data/Te NP 4D-STEM')
         fPath = Path('07_45x8 ss=5nm_spot11_CL=100 0p1s_alpha=4p63mrad_bin=4_300kV.dm4')
+        
+        #get the filename from the header.
+        msg.logMessage('NCEM: File path = {}'.format(self.header.startdoc.get('sample_name', '????'))) #This only prints the file name. Not the full path.
+        
         with dm.fileDM((dPath / fPath).as_posix()) as dm1:
             try:
                 scanI = int(dm1.allTags['.ImageList.2.ImageTags.Series.nimagesx'])
