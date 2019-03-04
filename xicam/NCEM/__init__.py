@@ -11,8 +11,8 @@ import pyqtgraph as pg
 from functools import partial
 from xicam.gui.widgets.dynimageview import DynImageView
 from .widgets.fourdimageview import FourDImageView
-from .widgets.NCEMToolbar import NCEMToolbar
-from xicam.gui.widgets.metadataview import MetadataView
+#from .widgets.NCEMToolbar import NCEMToolbar
+#from xicam.gui.widgets.metadataview import MetadataView
 
 from xicam.gui.widgets.tabview import TabView
 
@@ -41,12 +41,13 @@ class NCEMPlugin(GUIPlugin):
         
         self.fourDview = TabView(self.headermodel, self.selectionmodel, FourDImageView, 'primary')
 
-        self.metadataview = MetadataView(self.headermodel, self.selectionmodel)
+        #self.metadataview = MetadataView(self.headermodel, self.selectionmodel)
 
-        self.toolbar = NCEMToolbar(self.headermodel, self.selectionmodel)
+        #self.toolbar = NCEMToolbar(self.headermodel, self.selectionmodel)
 
         self.stages = {
-            'View': GUILayout(self.rawview, top=self.toolbar, right=self.metadataview),
+            #'View': GUILayout(self.rawview, top=self.toolbar, right=self.metadataview),
+            'View': GUILayout(self.rawview),
             '4D STEM': GUILayout(self.fourDview, ),
             'FFT View': GUILayout(self.fftview, )
         }
