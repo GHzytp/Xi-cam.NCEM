@@ -1,0 +1,9 @@
+[Core]
+Name = FFTViewerPlugin
+Module = widgets/FFTViewerPlugin.py
+
+[Documentation]
+Author = Peter Ercius
+Version = 0.1.0
+Website = http://lotsofplugins.com
+Description = Real space and FFT Live view of S/TEM data
