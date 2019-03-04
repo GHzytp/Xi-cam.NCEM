@@ -21,6 +21,12 @@ class FFTViewerPlugin(QWidgetPlugin):
         self.Rimageview = DynImageView()
         self.Fimageview = ImageView()
         
+        #Add ROI to real image
+        #self.Rroi = pg.RectROI(pos=(0, 0), size=(100, 100), translateSnap=True, snapSize=1, scaleSnap=True)
+        #self.Rroi.sigRegionChanged.connect(self.updateFFT)
+        #Rview = self.Rimageview.view  # type: pg.ViewBox
+        #Rview.addItem(self.Rroi)
+        
         self.setLayout(QHBoxLayout())
         self.layout().addWidget(self.Rimageview)
         self.layout().addWidget(self.Fimageview)
@@ -47,11 +53,7 @@ class FFTViewerPlugin(QWidgetPlugin):
         #self.layout().addWidget(self.Rimageview)
         #self.layout().addWidget(self.Fimageview)
         
-        #Add ROI to real image
-        #self.Rroi = pg.RectROI(pos=(0, 0), size=(10, 10), translateSnap=True, snapSize=1, scaleSnap=True)
-        #self.Rroi.sigRegionChanged.connect(self.updateFFT)
-        #Rview = self.Rimageview.view  # type: pg.ViewBox
-        #Rview.addItem(self.Rroi)
+        
         
         
         '''
@@ -95,15 +97,20 @@ class FFTViewerPlugin(QWidgetPlugin):
         ROI location and size
         
         '''
-        msg.logMessage('0 = {}'.format(int(self.Rroi.pos().x())))
-        msg.logMessage('1 = {}'.format(int(self.Rroi.pos().y())))
-        msg.logMessage('2 = {}'.format(int(self.Rroi.size().x())))
-        msg.logMessage('3 = {}'.format(int(self.Rroi.size().y())))
-        x0 = int(self.Rroi.pos().x())
-        x1 = int(self.Rroi.pos().x()) + int(self.Rroi.size().x())
-        y0 = int(self.Rroi.pos().y())
-        y1 = int(self.Rroi.pos().y()) + int(self.Rroi.size().y())
-        msg.logMessage('type data = {}'.format(type(data)))
+        #msg.logMessage('0 = {}'.format(int(self.Rroi.pos().x())))
+        #msg.logMessage('1 = {}'.format(int(self.Rroi.pos().y())))
+        #msg.logMessage('2 = {}'.format(int(self.Rroi.size().x())))
+        #msg.logMessage('3 = {}'.format(int(self.Rroi.size().y())))
+        #x0 = int(self.Rroi.pos().x())
+        #x1 = int(self.Rroi.pos().x()) + int(self.Rroi.size().x())
+        #y0 = int(self.Rroi.pos().y())
+        #y1 = int(self.Rroi.pos().y()) + int(self.Rroi.size().y())
+        #msg.logMessage('type data = {}'.format(type(data)))
+        
+        x0 = 0
+        x1 = 300
+        y0 = 0
+        y1 = 300
         
         temp = data[x0:x1,y0:y1]
         fft = np.fft.fft2(temp)
@@ -142,6 +149,6 @@ class FFTViewerPlugin(QWidgetPlugin):
                 #self.axesItem.setLabel('left', text='Y', units=units0[1])
                 
                 #Update the FFT of the image when new data is shown
-                #self.updateFFT(data['data'])
+                self.updateFFT(data)
             #else:
             #    msg.logMessage('Cant load 1D data.')
