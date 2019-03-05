@@ -21,15 +21,16 @@ class FFTViewerPlugin(QWidgetPlugin):
         self.Rimageview = DynImageView()
         self.Fimageview = ImageView()
         
-        #Add ROI to real image
-        #self.Rroi = pg.RectROI(pos=(0, 0), size=(100, 100), translateSnap=True, snapSize=1, scaleSnap=True)
-        #self.Rroi.sigRegionChanged.connect(self.updateFFT)
-        #Rview = self.Rimageview.view  # type: pg.ViewBox
-        #Rview.addItem(self.Rroi)
-        
         self.setLayout(QHBoxLayout())
         self.layout().addWidget(self.Rimageview)
         self.layout().addWidget(self.Fimageview)
+        
+        #Add ROI to real image
+        self.Rroi = pg.RectROI(pos=(0, 0), size=(100, 100), translateSnap=True, snapSize=1, scaleSnap=True)
+        self.Rroi.sigRegionChanged.connect(self.updateFFT)
+        Rview = self.Rimageview.view  # type: pg.ViewBox
+        Rview.addItem(self.Rroi)
+        self.Rroi.setZValue(10)
         
         # Add axes to the main data
         #self.axesItem = PlotItem()
