@@ -13,10 +13,12 @@ from qtpy.QtCore import QRect, QRectF
 
 import numpy as np
 
-class FFTViewerPlugin(QWidgetPlugin):
+class FFTViewerPlugin(QWidgetPlugin): #needs QWidget also?
     def __init__(self, header: NonDBHeader = None, field: str = 'primary', toolbar: QToolBar = None, *args, **kwargs):
         
-        super(FFTViewerPlugin, self).__init__(**kwargs)
+        #super(FFTViewerPlugin, self).__init__(*args, **kwargs)
+        super(FFTViewerPlugin, self).__init__(**kwargs) #Same as NCEMviewer
+        #super(FFTViewerPlugin, self).__init__(*args, *kwargs) #same as FFTviewer although this may not be correct
         
         self.Rimageview = DynImageView()
         self.Fimageview = ImageView()
