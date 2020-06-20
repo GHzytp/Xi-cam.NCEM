@@ -119,11 +119,11 @@ def _get_slice(file_hdl, start, end):
             An ndarray of the summed counts. np.dtype is uint32. Shape is frame_dimensions
     """
     #print('get_slice start {}'.format(start))
-    dp = np.zeros((576, 576), dtype=np.float32)
+    dp = np.zeros(576*576, dtype=np.float32)
     for ii, ev in enumerate(file_hdl['electron_events/frames'][start:end]):
-        xx, yy = np.unravel_index(ev, dp.shape)
-        dp[xx, yy] += 1
-    return dp
+        #xx, yy = np.unravel_index(ev, dp.shape)
+        dp[ev] += 1
+    return dp.reshape(576, 576)
 
 
 #if __name__ == "__main__":
