@@ -31,7 +31,8 @@ class NCEMViewerPlugin(StreamSelector, FieldSelector, ExportButton, BetterButton
         #self.coordinatesLbl = QLabel('--COORDINATES WILL GO HERE--')
         #self.ui.gridLayout.addWidget(self.coordinatesLbl, 3, 0, 1, 1, alignment=Qt.AlignHCenter)
 
-
+        if catalog:
+            self.setCatalog(catalog, stream=stream, field=field)
 
         start_doc = getattr(self.catalog, self.stream).metadata['start']
 

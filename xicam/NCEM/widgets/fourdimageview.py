@@ -30,7 +30,7 @@ class FourDImageView(QWidgetPlugin):
         super(FourDImageView, self).__init__(*args, *kwargs)
                 
         # Using DynImageView rotates the data and the ROI does not work correctly.
-        self.RSimageview = NCEMViewerPlugin(catalog)
+        self.RSimageview = NCEMImageView()
         self.DPimageview = NCEMImageView()
 
         # Keep Y-axis as is

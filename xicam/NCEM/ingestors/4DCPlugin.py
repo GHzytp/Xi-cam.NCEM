@@ -32,24 +32,24 @@ def ingest_NCEM_4DC(paths):
     dtype = first_frame.dtype
 
     ## Diff patterns only
-    #t0 = time.time()
-
-    #dask_data = da.stack([da.from_delayed(_get_slice(file_handle, t, t+num_sum), shape=shape, dtype=dtype)
-    #                      for t in range(num_t)])
-    #print('time = {}'.format(time.time() - t0))
-
-    scan_dimensions = (file_handle['electron_events/scan_positions'].attrs['Ny'],
-                       file_handle['electron_events/scan_positions'].attrs['Nx'])
-    scan_dimensions = (50, 50)
-    # Treat as 4D
-    XX, YY = np.mgrid[0:scan_dimensions[0], 0:scan_dimensions[1]]
     t0 = time.time()
-    print('start ingesting')
-    dask_data = da.stack([da.from_delayed(delayed_getDenseFrame3(file_handle, x, y), shape=shape, dtype=dtype)
-                          for x, y in zip(XX.ravel(), YY.ravel())])
-    dask_data = dask_data.reshape(*scan_dimensions, 576, 576)
-    print(dask_data.shape)
+    dask_data = da.stack([da.from_delayed(_get_slice(file_handle, t, t+num_sum), shape=shape, dtype=dtype)
+                         for t in range(num_t)])
     print('time = {}'.format(time.time() - t0))
+
+    ## 4D
+    # scan_dimensions = (file_handle['electron_events/scan_positions'].attrs['Ny'],
+    #                    file_handle['electron_events/scan_positions'].attrs['Nx'])
+    # scan_dimensions = (50, 50)
+    # # Treat as 4D
+    # XX, YY = np.mgrid[0:scan_dimensions[0], 0:scan_dimensions[1]]
+    # t0 = time.time()
+    # print('start ingesting')
+    # dask_data = da.stack([da.from_delayed(delayed_getDenseFrame3(file_handle, x, y), shape=shape, dtype=dtype)
+    #                       for x, y in zip(XX.ravel(), YY.ravel())])
+    # dask_data = dask_data.reshape(*scan_dimensions, 576, 576)
+    # print(dask_data.shape)
+    # print('time = {}'.format(time.time() - t0))
 
     # Compose descriptor
     source = 'NCEM'
@@ -58,9 +58,9 @@ def ingest_NCEM_4DC(paths):
                                'dtype': 'number',
                                'shape': (num_t, *shape)}}
     # Treat as 4D
-    frame_data_keys = {'raw': {'source': source,
-                               'dtype': 'number',
-                               'shape': dask_data.shape}}
+    # frame_data_keys = {'raw': {'source': source,
+    #                            'dtype': 'number',
+    #                            'shape': dask_data.shape}}
 
     frame_stream_name = f'primary'
 
