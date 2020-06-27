@@ -31,8 +31,7 @@ class NCEMViewerPlugin(StreamSelector, FieldSelector, ExportButton, BetterButton
         #self.coordinatesLbl = QLabel('--COORDINATES WILL GO HERE--')
         #self.ui.gridLayout.addWidget(self.coordinatesLbl, 3, 0, 1, 1, alignment=Qt.AlignHCenter)
 
-        if catalog:
-            self.setCatalog(catalog, stream=stream, field=field)
+
 
         start_doc = getattr(self.catalog, self.stream).metadata['start']
 
@@ -46,7 +45,7 @@ class NCEMViewerPlugin(StreamSelector, FieldSelector, ExportButton, BetterButton
             msg.logMessage('NCEMviewer: No pixel size or units detected')
 
         # Only way to set scale on the ImageView is to set the image again
-        self.setImage(self.xarray, scale=scale0)
+        self.setImage(self.xarray, scale=scale0, levels=(0, 5), autoLevels=False, autoHistogramRange=False)
 
         self.axesItem.setLabel('bottom', text='X', units=units0[0])
         self.axesItem.setLabel('left', text='Y', units=units0[1])

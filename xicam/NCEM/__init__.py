@@ -34,7 +34,7 @@ class NCEMPlugin(GUIPlugin):
 
         self.fftview = TabView(self.catalogModel, self.selectionmodel, widgets.FFTViewerPlugin, 'primary', field='raw')
 
-        #self.fourDview = TabView(self.headermodel, self.selectionmodel, widgets.FourDImageView, 'primary')
+        self.fourDview = TabView(self.catalogModel, self.selectionmodel, widgets.fourdimageview, 'primary', field='raw')
 
         # self.metadataview = MetadataView(self.catalogModel, self.selectionmodel, excludedkeys=('uid','descriptor','data'))
 
@@ -42,8 +42,7 @@ class NCEMPlugin(GUIPlugin):
 
         self.stages = {
             'View': GUILayout(self.rawview, ),  # top=self.toolbar, )#right=self.metadataview),
-            # 'View': GUILayout(self.rawview, top=self.toolbar),
-            # '4D STEM': GUILayout(self.fourDview, ),
+            '4D STEM': GUILayout(self.fourDview, ),
             'FFT View': GUILayout(self.fftview, )
         }
         super(NCEMPlugin, self).__init__()

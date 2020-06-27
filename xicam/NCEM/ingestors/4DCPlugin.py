@@ -1,13 +1,9 @@
-import json
-import functools
 import time
 import dask
 import dask.array as da
 from pathlib import Path
 import numpy as np
 import h5py
-from collections.abc import Iterable
-import numbers
 
 import event_model
 
@@ -30,26 +26,41 @@ def ingest_NCEM_4DC(paths):
 
     num_sum = 10
 
-    num_t = 200  #_num_t(file_handle)
+    num_t = 2000  #_num_t(file_handle)
     first_frame = _get_slice(file_handle, 0, num_sum).compute()
     shape = first_frame.shape
     dtype = first_frame.dtype
 
-    #delayed_get_slice = dask.delayed(_get_slice)
-    #dask_data = da.stack([da.from_delayed(delayed_get_slice(file_handle, t, t+num_sum), shape=shape, dtype=dtype)
+    ## Diff patterns only
+    #t0 = time.time()
+
+    #dask_data = da.stack([da.from_delayed(_get_slice(file_handle, t, t+num_sum), shape=shape, dtype=dtype)
     #                      for t in range(num_t)])
+    #print('time = {}'.format(time.time() - t0))
 
-    #dask_data = da.stack([dask.delayed(_get_slice)(file_handle, t, t+num_sum) for t in range(num_t)])
-
-    dask_data = da.stack([da.from_delayed(_get_slice(file_handle, t, t+num_sum), shape=shape, dtype=dtype)
-                          for t in range(num_t)])
-
+    scan_dimensions = (file_handle['electron_events/scan_positions'].attrs['Ny'],
+                       file_handle['electron_events/scan_positions'].attrs['Nx'])
+    scan_dimensions = (50, 50)
+    # Treat as 4D
+    XX, YY = np.mgrid[0:scan_dimensions[0], 0:scan_dimensions[1]]
+    t0 = time.time()
+    print('start ingesting')
+    dask_data = da.stack([da.from_delayed(delayed_getDenseFrame3(file_handle, x, y), shape=shape, dtype=dtype)
+                          for x, y in zip(XX.ravel(), YY.ravel())])
+    dask_data = dask_data.reshape(*scan_dimensions, 576, 576)
+    print(dask_data.shape)
+    print('time = {}'.format(time.time() - t0))
 
     # Compose descriptor
     source = 'NCEM'
+    # Treat as 3D
     frame_data_keys = {'raw': {'source': source,
                                'dtype': 'number',
                                'shape': (num_t, *shape)}}
+    # Treat as 4D
+    frame_data_keys = {'raw': {'source': source,
+                               'dtype': 'number',
+                               'shape': dask_data.shape}}
 
     frame_stream_name = f'primary'
 
@@ -92,8 +103,8 @@ def _parse_file(self):
         self.frames = self.fid['electron_events/frames']
         self.scan_positions = self.fid['electron_events/scan_positions']
 
-        self.scan_dimensions = [self.scan_positions.attrs[x] for x in ['Nx', 'Ny']]
-        self.frame_dimensions = [self.frames.attrs[x] for x in ['Nx', 'Ny']]
+        self.scan_dimensions = [self.scan_positions.attrs[x] for x in ['Ny', 'Nx']]
+        self.frame_dimensions = [self.frames.attrs[x] for x in ['Ny', 'Nx']]
         self.num_frames = self.frames.shape[0]
     return
 
@@ -119,12 +130,18 @@ def _get_slice(file_hdl, start, end):
             An ndarray of the summed counts. np.dtype is uint32. Shape is frame_dimensions
     """
     #print('get_slice start {}'.format(start))
-    dp = np.zeros(576*576, dtype=np.float32)
+    dp = np.zeros(576*576, dtype=np.uint16)
     for ii, ev in enumerate(file_hdl['electron_events/frames'][start:end]):
-        #xx, yy = np.unravel_index(ev, dp.shape)
         dp[ev] += 1
     return dp.reshape(576, 576)
 
+@dask.delayed
+def delayed_getDenseFrame3(file_hdl, x, y):
+    dp = np.zeros(576*576, dtype='<u4')
+    z = np.ravel_multi_index((x,y), (50,50))
+    ev = file_hdl['electron_events/frames'][z]
+    dp[ev] += 1
+    return dp.reshape(576, 576)
 
 #if __name__ == "__main__":
 #    print(list(ingest_NCEM_4DC(["C:/Users/linol/Data/data_scan218_electrons.4dc"])))
