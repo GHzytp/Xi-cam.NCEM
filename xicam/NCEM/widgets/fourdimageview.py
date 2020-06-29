@@ -18,7 +18,7 @@ import numpy as np
 import h5py
 
 
-class FourDImageView(QWidgetPlugin):
+class fourdimageview(CatalogView, QWidgetPlugin):
 
     def __init__(self, catalog, stream: str = 'primary', field: str = 'raw',
                  toolbar: QToolBar = None, *args, **kwargs):
@@ -27,11 +27,17 @@ class FourDImageView(QWidgetPlugin):
         self.field = field
         self.catalog = catalog
 
-        super(FourDImageView, self).__init__(*args, *kwargs)
-                
+        super(fourdimageview, self).__init__(*args, *kwargs)
+
+        if catalog:
+            self.setCatalog(catalog, stream=stream, field=field)
+
         # Using DynImageView rotates the data and the ROI does not work correctly.
         self.RSimageview = NCEMImageView()
         self.DPimageview = NCEMImageView()
+
+        self.RSimageview.setImage(np.zeros((100, 100), dtype=np.uint32))
+        self.DPimageview.setImage(np.zeros((576, 576), dtype=np.uint32))
 
         # Keep Y-axis as is
         self.DPimageview.view.invertY(True)
@@ -73,11 +79,20 @@ class FourDImageView(QWidgetPlugin):
         ROI location and size
 
         """
-        self.RSimageview.setImage(np.log(np.sum(self.data[:, :, int(self.DProi.pos().x()):int(self.DProi.pos().x() + self.DProi.size().x()),int(self.DProi.pos().y()):int(self.DProi.pos().y() + self.DProi.size().y())], axis=(3, 2),dtype=np.float32) + 1))
-    
+        #self.RSimageview.setImage(np.log(np.sum(self.data[:, :, int(self.DProi.pos().x()):int(self.DProi.pos().x() + self.DProi.size().x()),int(self.DProi.pos().y()):int(self.DProi.pos().y() + self.DProi.size().y())], axis=(3, 2),dtype=np.float32) + 1))
+        dd = self.data_4D[:, :, int(self.DProi.pos().x()):int(self.DProi.pos().x() + self.DProi.size().x()),
+                          int(self.DProi.pos().y()):int(self.DProi.pos().y() + self.DProi.size().y())]
+        dd2 = dd.sum(axis=(2, 3))
+        im = dd2.compute()
+        self.RSimageview.setImage(im)
+
     def updateDP(self):
         """ Update the real space image based on the diffraction space
         ROI location and size.
 
         """
-        self.DPimageview.setImage(np.sum(self.data[int(self.RSroi.pos().x()):int(self.RSroi.pos().x() + self.RSroi.size().x()),int(self.RSroi.pos().y()):int(self.RSroi.pos().y() + self.RSroi.size().y()), :, :], axis=(1, 0),dtype=np.float32))
+        #self.DPimageview.setImage(np.sum(self.data[int(self.RSroi.pos().x()):int(self.RSroi.pos().x() + self.RSroi.size().x()),int(self.RSroi.pos().y()):int(self.RSroi.pos().y() + self.RSroi.size().y()), :, :], axis=(1, 0),dtype=np.float32))
+        dd = self.data_4D[int(self.RSroi.pos().x()):int(self.RSroi.pos().x() + self.RSroi.size().x()),
+             int(self.RSroi.pos().y()):int(self.RSroi.pos().y() + self.RSroi.size().y()), :, :]
+        im = dd.sum(axis=(0, 1)).compute()
+        self.DPimageview.setImage(im)

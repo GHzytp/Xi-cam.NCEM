@@ -12,7 +12,7 @@ def ingest_NCEM_4DC(paths):
     assert len(paths) == 1
     path = paths[0]
 
-    file_handle = h5py.File(path, 'r')
+    file_handle = h5py.File(path, 'r', rdcc_nbytes=1e8)
 
     # Compose run start
     run_bundle = event_model.compose_run()  # type: event_model.ComposeRunBundle
@@ -25,7 +25,6 @@ def ingest_NCEM_4DC(paths):
     yield 'start', start_doc
 
     num_sum = 10
-
     num_t = 2000  #_num_t(file_handle)
     first_frame = _get_slice(file_handle, 0, num_sum).compute()
     shape = first_frame.shape
